@@ -71,10 +71,14 @@ server.listen(port, () => {
 });
 
 const io = require("socket.io-client");
-const ioClient = io.connect(`https://idol.gotechjsc.com:${port}`, {
-    secure: true,
-    reconnection: true,
-    rejectUnauthorized: false
+const ioClient = io(`https://idol.gotechjsc.com:${port}`, {
+  key: readFileSync("/home/ubuntu/apps/myapp/shared/ssl/socket_key.pem"),
+  cert: readFileSync("/home/ubuntu/apps/myapp/shared/ssl/socket_cert.pem"),
+  ca: [
+    readFileSync("/home/ubuntu/socket_io/ssl/fullchain.pem")
+  ],
+  secure: true,
+  reconnection: true,
+  rejectUnauthorized: false
 });
-
 ioClient.on(EVENTS.CONVERSATION_SEND, (msg) => console.info('Simulated client: ' + msg));
