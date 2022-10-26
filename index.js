@@ -11,7 +11,7 @@ const https_options = {
 	]};
 const server = https.createServer(https_options, app);
 
-const io = require('socket.io')(server,{
+const ios = require('socket.io')(server,{
   cors: {
     origin: ["https://idol.gotechjsc.com", "https://idol-front.gotechjsc.com"],
     methods: ["GET", "POST"]
@@ -38,9 +38,11 @@ const EVENTS = {
   CONVERSATION_SEND: 'CONVERSATION_SEND',
 }
 
-io.on(EVENTS.connection, (socket) => {
+let sequenceNumberByClient = new Map();
+ios.on(EVENTS.connection, (socket) => {
   let conversation = null
   console.log('[[CONNECTION]] ', Date.now(), socket.id)
+  sequenceNumberByClient.set(socket, 1);
 
   socket.on(EVENTS.USER_SEND, (...args) => {
     console.log(socket.rooms, ...args)
@@ -56,9 +58,23 @@ io.on(EVENTS.connection, (socket) => {
     conversation = `CONVERSATION::${conversation_id}`
     socket.join(conversation)
   });
+
+  socket.on(EVENTS.disconnect, () => {
+    sequenceNumberByClient.delete(socket);
+    console.info(`Client gone [id=${socket.id}]`);
+  });
 });
 
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 3000;
 server.listen(port, () => {
   console.log(`Socket.IO server running at port: ${port}/`);
 });
+
+const io = require("socket.io-client");
+const ioClient = io.connect(`https://idol.gotechjsc.com:${port}`, {
+    secure: true,
+    reconnection: true,
+    rejectUnauthorized: false
+});
+
+ioClient.on(EVENTS.CONVERSATION_SEND, (msg) => console.info('Simulated client: ' + msg));
