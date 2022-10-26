@@ -1,19 +1,21 @@
 require('dotenv').config();
 const app = require('express')();
 const https = require('https');
+const { createServer } = require("http");
 const fs = require('fs');
-const https_options = {
-        key: fs.readFileSync('/home/ubuntu/socket_io/ssl/privkey.pem'),
-        cert: fs.readFileSync('/home/ubuntu/socket_io/ssl/fullchain.pem'),
-        requestCert: true,
-        ca:[
-	  fs.readFileSync('/home/ubuntu/apps/myapp/shared/ssl/socket_cert.pem')
-	]};
-const server = https.createServer(https_options, app);
+// const https_options = {
+//         key: fs.readFileSync(process.env.SERVER_KEY_PATH),
+//         cert: fs.readFileSync(process.env.SERVER_CERT_PATH),
+//         requestCert: true,
+//         ca:[
+//           fs.readFileSync(process.env.CLIENT_CERT_PATH)
+//         ]};
+// const server = https.createServer(https_options, app);
+const server = createServer(app);
 
 const ios = require('socket.io')(server,{
   cors: {
-    origin: ["https://idol.gotechjsc.com", "https://idol-front.gotechjsc.com"],
+    origin: ["https://idol.gotechjsc.com", "https://idol-front.gotechjsc.com", "http://localhost:3002"],
     methods: ["GET", "POST"]
   }
 });
