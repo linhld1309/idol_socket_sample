@@ -3,12 +3,10 @@ const app = require('express')();
 const https = require('https');
 const fs = require('fs');
 const https_options = {
-        key: fs.readFileSync('/home/ubuntu/socket_io/ssl/privkey.pem'),
-        cert: fs.readFileSync('/home/ubuntu/socket_io/ssl/fullchain.pem'),
-        requestCert: true,
-        ca:[
-	  fs.readFileSync('/home/ubuntu/apps/myapp/shared/ssl/socket_cert.pem')
-	]};
+          key: fs.readFileSync('ssl/privkey.pem'),
+          cert: fs.readFileSync('ssl/fullchain.pem'),
+          requestCert: true
+	};
 const server = https.createServer(https_options, app);
 
 const io = require('socket.io')(server,{
@@ -58,7 +56,7 @@ io.on(EVENTS.connection, (socket) => {
   });
 });
 
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 3001;
 server.listen(port, () => {
   console.log(`Socket.IO server running at port: ${port}/`);
 });
