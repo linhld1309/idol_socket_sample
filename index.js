@@ -4,14 +4,13 @@ const https = require('https');
 const fs = require('fs');
 const https_options = {
           key: fs.readFileSync('ssl/privkey.pem'),
-          cert: fs.readFileSync('ssl/fullchain.pem'),
-          requestCert: true
+          cert: fs.readFileSync('ssl/fullchain.pem')
 	};
 const server = https.createServer(https_options, app);
 
 const io = require('socket.io')(server,{
   cors: {
-    origin: ["https://idol.gotechjsc.com", "https://idol-front.gotechjsc.com"],
+    origin: ["https://idol.gotechjsc.com", "https://idol-front.gotechjsc.com", "http://localhost:3000"],
     methods: ["GET", "POST"]
   }
 });
