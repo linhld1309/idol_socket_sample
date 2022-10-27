@@ -2,18 +2,15 @@ require('dotenv').config();
 const app = require('express')();
 const https = require('https');
 const fs = require('fs');
-const https_options = {
-        key: fs.readFileSync('/home/ubuntu/socket_io/ssl/privkey.pem'),
-        cert: fs.readFileSync('/home/ubuntu/socket_io/ssl/fullchain.pem'),
-        requestCert: true,
-        ca:[
-	  fs.readFileSync('/home/ubuntu/apps/myapp/shared/ssl/socket_cert.pem')
-	]};
-const server = https.createServer(https_options, app);
+const credentials = {
+          key: fs.readFileSync('ssl/server_key.pem'),
+          cert: fs.readFileSync('ssl/server_cert.pem'),
+        };
+const server = https.createServer(credentials, app);
 
 const ios = require('socket.io')(server,{
   cors: {
-    origin: ["https://idol.gotechjsc.com", "https://idol-front.gotechjsc.com"],
+    origin: ["https://idol.gotechjsc.com", "https://idol-front.gotechjsc.com", "http://localhost:3000"],
     methods: ["GET", "POST"]
   }
 });
@@ -23,10 +20,10 @@ app.get('/', (req, res) => {
 });
 
 app.use((req,res,next)=>{
-    res.setHeader('Access-Control-Allow-Origin','*');
-    res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,PATCH,DELETE');
-    res.setHeader('Access-Control-Allow-Methods','Content-Type','Authorization');
-    next(); 
+  res.setHeader('Access-Control-Allow-Origin','*');
+  res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,PATCH,DELETE');
+  res.setHeader('Access-Control-Allow-Methods','Content-Type','Authorization');
+  next(); 
 })
 
 const EVENTS = {
@@ -65,20 +62,7 @@ ios.on(EVENTS.connection, (socket) => {
   });
 });
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 server.listen(port, () => {
   console.log(`Socket.IO server running at port: ${port}/`);
 });
-
-const io = require("socket.io-client");
-const ioClient = io(`https://idol.gotechjsc.com:${port}`, {
-  key: fs.readFileSync("/home/ubuntu/apps/myapp/shared/ssl/socket_key.pem"),
-  cert: fs.readFileSync("/home/ubuntu/apps/myapp/shared/ssl/socket_cert.pem"),
-  ca: [
-    fs.readFileSync("/home/ubuntu/socket_io/ssl/fullchain.pem")
-  ],
-  secure: true,
-  reconnection: true,
-  rejectUnauthorized: false
-});
-ioClient.on(EVENTS.CONVERSATION_SEND, (msg) => console.info('Simulated client: ' + msg));
